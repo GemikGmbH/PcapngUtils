@@ -37,6 +37,8 @@ namespace PcapngUtils.PcapNG
         }
 
         private readonly object _syncRoot = new object();
+
+        public object SyncRoot { get { return _syncRoot; } }
         #endregion
 
         #region ctor
@@ -46,6 +48,13 @@ namespace PcapngUtils.PcapNG
             Contract.Requires<ArgumentException>(!File.Exists(path), "file exists");
             HeaderWithInterfacesDescriptions header = HeaderWithInterfacesDescriptions.CreateEmptyHeadeWithInterfacesDescriptions(false);
             Initialize(new FileStream(path, FileMode.Create), new List<HeaderWithInterfacesDescriptions>(){header}) ;
+        }
+
+        public PcapNgWriter(Stream stream, bool reverseByteOrder = false)
+        {
+            Contract.Requires<ArgumentNullException>(stream != null && stream.CanWrite, "stream cannot be null and should be writable");
+            HeaderWithInterfacesDescriptions header = HeaderWithInterfacesDescriptions.CreateEmptyHeadeWithInterfacesDescriptions(false);
+            Initialize(stream, new List<HeaderWithInterfacesDescriptions>() { header });
         }  
 
         public PcapNgWriter(string path, List<HeaderWithInterfacesDescriptions> headersWithInterface)
@@ -60,6 +69,15 @@ namespace PcapngUtils.PcapNG
             Initialize(new FileStream(path, FileMode.Create), headersWithInterface);
         }
 
+        public PcapNgWriter(Stream stream, List<HeaderWithInterfacesDescriptions> headersWithInterface)
+        {
+            Contract.Requires<ArgumentNullException>(stream != null && stream.CanWrite, "stream cannot be null and should be writable");
+            Contract.Requires<ArgumentNullException>(headersWithInterface != null, "headersWithInterface list cannot be null");
+            Contract.Requires<ArgumentException>(headersWithInterface.Count >= 1, "headersWithInterface list is empty");
+
+            Initialize(stream, headersWithInterface);
+        }
+
         private void Initialize(Stream stream, List<HeaderWithInterfacesDescriptions> headersWithInterface)
          {                     
              Contract.Requires<ArgumentNullException>(stream != null, "stream cannot be null");
@@ -71,13 +89,13 @@ namespace PcapngUtils.PcapNG
              this._headersWithInterface = headersWithInterface;
              this._stream = stream;
              _binaryWriter = new BinaryWriter(stream);
-             Action<Exception> ReThrowException = (exc) =>
+             Action<Exception> reThrowException = (exc) =>
              {
                  ExceptionDispatchInfo.Capture(exc).Throw();
              };
              foreach (var header in headersWithInterface)
              {
-                 _binaryWriter.Write(header.ConvertToByte(header.Header.ReverseByteOrder, ReThrowException));          
+                 _binaryWriter.Write(header.ConvertToByte(header.Header.ReverseByteOrder, reThrowException));          
              }
                
          }           
@@ -139,10 +157,10 @@ namespace PcapngUtils.PcapNG
             byte [] data = headersWithInterface.ConvertToByte(headersWithInterface.Header.ReverseByteOrder, OnException);
             try
             {
-                lock (_syncRoot)
-                {
+                //lock (_syncRoot)
+                //{
                     _binaryWriter.Write(data);
-                }
+               // }
             }
             catch (Exception exc)
             {
