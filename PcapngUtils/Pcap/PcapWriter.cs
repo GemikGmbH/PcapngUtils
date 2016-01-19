@@ -29,6 +29,9 @@ namespace PcapngUtils.Pcap
         private BinaryWriter _binaryWriter;
         private SectionHeader _header;
         private readonly object _syncRoot = new object();
+
+        public object SyncRoot { get { return _syncRoot; } }
+
         #endregion
 
         #region ctor
@@ -40,6 +43,14 @@ namespace PcapngUtils.Pcap
             Initialize(new FileStream(path, FileMode.Create),sh);
         }
 
+        public PcapWriter(Stream stream, bool nanoseconds = false, bool reverseByteOrder = false)
+        {
+            Contract.Requires<ArgumentNullException>(stream!=null && stream.CanWrite, "stream cannot be null and should be writable");
+
+            SectionHeader sh = SectionHeader.CreateEmptyHeader(nanoseconds, reverseByteOrder);
+            Initialize(stream, sh);
+        }
+
         public PcapWriter(string path, SectionHeader header)
         {
             Contract.Requires<ArgumentNullException>(!string.IsNullOrWhiteSpace(path), "path cannot be null or empty");
@@ -47,6 +58,14 @@ namespace PcapngUtils.Pcap
             Contract.Requires<ArgumentNullException>(header!=null, "SectionHeader cannot be null");
             
             Initialize(new FileStream(path, FileMode.Create),header);
+        }
+
+        public PcapWriter(Stream stream, SectionHeader header)
+        {
+            Contract.Requires<ArgumentNullException>(stream != null && stream.CanWrite, "stream cannot be null and should be writable");
+            Contract.Requires<ArgumentNullException>(header != null, "SectionHeader cannot be null");
+
+            Initialize(stream, header);
         }
 
          private void Initialize(Stream stream, SectionHeader header)
@@ -90,10 +109,10 @@ namespace PcapngUtils.Pcap
                 ret.AddRange(data);
                 if (ret.Count > _header.MaximumCaptureLength)
                     throw new ArgumentOutOfRangeException(string.Format("[PcapWriter.WritePacket] packet length: {0} is greater than MaximumCaptureLength: {1}", ret.Count, _header.MaximumCaptureLength));
-                lock (_syncRoot)
-                {
+                //lock (_syncRoot)
+                //{
                     _binaryWriter.Write(ret.ToArray());
-                }
+                //}
             }
             catch (Exception exc)
             {
