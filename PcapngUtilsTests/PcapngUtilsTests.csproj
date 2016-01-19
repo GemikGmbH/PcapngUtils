@@ -75,6 +75,7 @@
     <Compile Include="PcapNgReaderTest.cs" />
     <Compile Include="PcapReaderTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReaderFactoryTest.cs" />
     <Compile Include="ReverseByteOrderExtensionTest.cs" />
     <Compile Include="SectionHeaderBlockTest.cs" />
     <Compile Include="SectionHeaderOptionTest.cs" />
