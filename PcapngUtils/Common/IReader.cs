@@ -18,5 +18,15 @@ namespace PcapngUtils.Common
         /// </summary>
         /// <param name="cancellationToken"></param>
         void ReadPackets(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Reads next packet in the stream.
+        /// </summary>
+        /// <returns>Returns last fetched packet</returns>
+        IPacket Read();
+        void Seek(long position);
+
+        bool EndOfStream { get; }
+        object SyncRoot { get; }
     }
 }

@@ -8,7 +8,7 @@ using PcapngUtils.Extensions;
 namespace PcapngUtils.PcapNG.BlockTypes
 {
     [ToString]    
-    public sealed class SimplePacketBlock : AbstractBlock, IPacket
+    public sealed class SimplePacketBlock : AbstractBlock, INgPacket
     {   
         #region IPacket
         public ulong Seconds
@@ -117,6 +117,11 @@ namespace PcapngUtils.PcapNG.BlockTypes
         #endregion
 
         #region method
+
+        public void Comment(string comment)
+        {
+            throw new NotImplementedException("comment is not supported for simple packets.");
+        }
         protected override BaseBlock ConvertToBaseBlock(bool reverseByteOrder, Action<Exception> actionOnException)
         {
             List<byte> body = new List<byte>();

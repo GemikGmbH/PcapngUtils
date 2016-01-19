@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using PcapngUtils.Common;
@@ -39,6 +40,8 @@ namespace PcapngUtils.Pcap
         public SectionHeader Header { get; private set; }
         private readonly object _syncRoot = new object();
         private long _basePosition;
+        public bool EndOfStream { get { return _binaryReader.BaseStream.Position < _binaryReader.BaseStream.Length; } }
+        public object SyncRoot { get { return _syncRoot; } }
         #endregion
 
         #region ctor
@@ -85,29 +88,13 @@ namespace PcapngUtils.Pcap
         /// <param name="cancellationToken"></param>
         public void ReadPackets(CancellationToken cancellationToken)
         {
-            uint secs, usecs,caplen,len;
-            long position = 0;
-            byte[] data;
-
+            PcapPacket packet;
             while (_binaryReader.BaseStream.Position < _binaryReader.BaseStream.Length && !cancellationToken.IsCancellationRequested)
             {
                 try
                 {
                     lock (_syncRoot)
-                    {
-                        position = _binaryReader.BaseStream.Position;
-                        secs = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
-                        usecs = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
-                        if (Header.NanoSecondResolution)
-                            usecs = usecs / 1000;
-                        caplen = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
-                        len = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
-
-                        data = _binaryReader.ReadBytes((int)caplen);
-                        if (data.Length < caplen)
-                            throw new EndOfStreamException("Unable to read beyond the end of the stream");
-                    }
-                    PcapPacket packet = new PcapPacket((UInt64)secs, (UInt64)usecs, data,position);
+                        packet = ReadPcap();
                     OnReadPacket(packet);
                 }
                 catch(Exception exc)
@@ -115,6 +102,35 @@ namespace PcapngUtils.Pcap
                     OnException(exc);
                 }
             }
+        }
+
+        public IPacket Read()
+        {
+            return ReadPcap();
+        }
+
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public PcapPacket ReadPcap()
+        {
+            var position = _binaryReader.BaseStream.Position;
+            var secs = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
+            var usecs = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
+            if (Header.NanoSecondResolution)
+                usecs = usecs / 1000;
+            var caplen = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
+            //var len = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
+
+            var data = _binaryReader.ReadBytes((int)caplen);
+            if (data.Length < caplen)
+                throw new EndOfStreamException("Unable to read beyond the end of the stream");
+
+            var packet = new PcapPacket((UInt64)secs, (UInt64)usecs, data, position);
+            return packet;
+        }
+
+        public void Seek(long position)
+        {
+            _binaryReader.BaseStream.Position = position;
         }
 
         /// <summary>

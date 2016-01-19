@@ -10,7 +10,7 @@ using PcapngUtils.PcapNG.OptionTypes;
 namespace PcapngUtils.PcapNG.BlockTypes
 {
     [ToString]          
-    public sealed class PacketBlock:AbstractBlock,IPacket
+    public sealed class PacketBlock:AbstractBlock,INgPacket
     {
         #region IPacket
         public ulong Seconds
@@ -207,6 +207,11 @@ namespace PcapngUtils.PcapNG.BlockTypes
             body.AddRange(Options.ConvertToByte(reverseByteOrder, actionOnException));
             BaseBlock baseBlock = new BaseBlock(this.BlockType, body.ToArray(), reverseByteOrder, 0);
             return baseBlock;
+        }
+
+        public void Comment(string comment)
+        {
+            _options.Comment = comment;
         }
         #endregion
     }

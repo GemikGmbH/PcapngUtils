@@ -10,7 +10,7 @@ using PcapngUtils.PcapNG.OptionTypes;
 namespace PcapngUtils.PcapNG.BlockTypes
 {
     [ToString]     
-    public sealed class EnchantedPacketBlock : AbstractBlock, IPacket
+    public sealed class EnchantedPacketBlock : AbstractBlock, INgPacket
     {
 
         #region IPacket
@@ -208,7 +208,13 @@ namespace PcapngUtils.PcapNG.BlockTypes
             body.AddRange(Options.ConvertToByte(reverseByteOrder, actionOnException));
             BaseBlock baseBlock = new BaseBlock(this.BlockType,body.ToArray(),reverseByteOrder,0);
             return baseBlock;
-        }   
+        }
+
+        public void Comment(string comment)
+        {
+            options.Comment = comment;
+        }
+
         #endregion
     }
 }

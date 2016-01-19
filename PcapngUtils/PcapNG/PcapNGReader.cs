@@ -50,6 +50,9 @@ namespace PcapngUtils.PcapNG
         }
 
         private readonly object _syncRoot = new object();
+
+        public object SyncRoot { get { return _syncRoot; } }
+        public bool EndOfStream { get { return _binaryReader.BaseStream.Position < _binaryReader.BaseStream.Length; } }
         #endregion
 
         #region ctor
@@ -162,7 +165,12 @@ namespace PcapngUtils.PcapNG
                 _binaryReader.Close();
             if (_stream != null)
                 _stream.Close();
-        } 
+        }
+
+        public void Seek(long position)
+        {
+            _binaryReader.BaseStream.Position = position;
+        }
 
         public void ReadPackets(CancellationToken cancellationToken)
         {
@@ -179,10 +187,7 @@ namespace PcapngUtils.PcapNG
                     }
 
                     if (block == null)
-                    {
                         throw new Exception(string.Format("[ReadPackets] AbstractBlockFactory cannot read packet on position {0}", prevPosition));
-                       
-                    }
 
                     switch(block.BlockType)
                     {
@@ -229,7 +234,37 @@ namespace PcapngUtils.PcapNG
                 }
             }
         }
-       
+
+        public INgPacket ReadPcap()
+        {
+            var block = AbstractBlockFactory.ReadNextBlock(_binaryReader, _reverseByteOrder, OnException);
+
+            switch (block.BlockType)
+            {
+                case BaseBlock.Types.EnhancedPacket:
+                {
+                    var enchantedBlock = block as EnchantedPacketBlock;
+                    return enchantedBlock;
+                }
+                case BaseBlock.Types.Packet:
+                {
+                    var packetBlock = block as PacketBlock;
+                    return packetBlock;
+                }
+                case BaseBlock.Types.SimplePacket:
+                {
+                    var simpleBlock = block as SimplePacketBlock;
+                    return simpleBlock;
+                }
+            }
+            throw new Exception("failed to read next packet.");
+        }
+
+        public IPacket Read()
+        {
+            return ReadPcap();
+        }
+
         #endregion
     }
 }
