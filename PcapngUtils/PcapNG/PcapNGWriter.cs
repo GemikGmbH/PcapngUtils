@@ -46,14 +46,14 @@ namespace PcapngUtils.PcapNG
         {
             Contract.Requires<ArgumentNullException>(!string.IsNullOrWhiteSpace(path), "path cannot be null or empty");
             Contract.Requires<ArgumentException>(!File.Exists(path), "file exists");
-            HeaderWithInterfacesDescriptions header = HeaderWithInterfacesDescriptions.CreateEmptyHeadeWithInterfacesDescriptions(false);
+            HeaderWithInterfacesDescriptions header = HeaderWithInterfacesDescriptions.CreateEmptyHeadeWithInterfacesDescriptions(reverseByteOrder);
             Initialize(new FileStream(path, FileMode.Create), new List<HeaderWithInterfacesDescriptions>(){header}) ;
         }
 
         public PcapNgWriter(Stream stream, bool reverseByteOrder = false)
         {
             Contract.Requires<ArgumentNullException>(stream != null && stream.CanWrite, "stream cannot be null and should be writable");
-            HeaderWithInterfacesDescriptions header = HeaderWithInterfacesDescriptions.CreateEmptyHeadeWithInterfacesDescriptions(false);
+            HeaderWithInterfacesDescriptions header = HeaderWithInterfacesDescriptions.CreateEmptyHeadeWithInterfacesDescriptions(reverseByteOrder);
             Initialize(stream, new List<HeaderWithInterfacesDescriptions>() { header });
         }  
 
