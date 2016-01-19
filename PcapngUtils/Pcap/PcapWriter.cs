@@ -100,19 +100,15 @@ namespace PcapngUtils.Pcap
                 uint len = (uint)packet.Data.Length;
                 byte[] data = packet.Data;
 
-                List<byte> ret = new List<byte>();
+                var size = data.Length + 16;
+                if (size > _header.MaximumCaptureLength)
+                    throw new ArgumentOutOfRangeException(string.Format("[PcapWriter.WritePacket] packet length: {0} is greater than MaximumCaptureLength: {1}", size, _header.MaximumCaptureLength));
 
-                ret.AddRange(BitConverter.GetBytes(secs.ReverseByteOrder(_header.ReverseByteOrder)));
-                ret.AddRange(BitConverter.GetBytes(usecs.ReverseByteOrder(_header.ReverseByteOrder)));
-                ret.AddRange(BitConverter.GetBytes(caplen.ReverseByteOrder(_header.ReverseByteOrder)));
-                ret.AddRange(BitConverter.GetBytes(len.ReverseByteOrder(_header.ReverseByteOrder)));
-                ret.AddRange(data);
-                if (ret.Count > _header.MaximumCaptureLength)
-                    throw new ArgumentOutOfRangeException(string.Format("[PcapWriter.WritePacket] packet length: {0} is greater than MaximumCaptureLength: {1}", ret.Count, _header.MaximumCaptureLength));
-                //lock (_syncRoot)
-                //{
-                    _binaryWriter.Write(ret.ToArray());
-                //}
+                _binaryWriter.Write(secs.ReverseByteOrder(_header.ReverseByteOrder));
+                _binaryWriter.Write(usecs.ReverseByteOrder(_header.ReverseByteOrder));
+                _binaryWriter.Write(caplen.ReverseByteOrder(_header.ReverseByteOrder));
+                _binaryWriter.Write(len.ReverseByteOrder(_header.ReverseByteOrder));
+                _binaryWriter.Write(data);
             }
             catch (Exception exc)
             {
