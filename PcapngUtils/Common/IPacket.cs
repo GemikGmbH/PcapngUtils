@@ -6,6 +6,7 @@ namespace PcapngUtils.Common
     {
         UInt64 Seconds {get;}
         UInt64 Microseconds{get;}
+        UInt64 Nanoseconds { get; }
         byte[] Data { get; }
     }
 }

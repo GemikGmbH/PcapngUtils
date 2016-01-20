@@ -22,6 +22,11 @@ namespace PcapngUtils.PcapNG.BlockTypes
         {
             get { return Timestamp.Microseconds; }
         }
+
+        public ulong Nanoseconds
+        {
+            get { return Timestamp.Microseconds *1000; }
+        }
         #endregion
 
         #region Properties

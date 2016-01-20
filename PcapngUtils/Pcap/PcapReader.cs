@@ -114,9 +114,9 @@ namespace PcapngUtils.Pcap
         {
             var position = _binaryReader.BaseStream.Position;
             var secs = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
-            var usecs = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
-            if (Header.NanoSecondResolution)
-                usecs = usecs / 1000;
+            var nsecs = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
+            if (!Header.NanoSecondResolution)
+                nsecs = nsecs * 1000;
             var caplen = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
             var len = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
 
@@ -124,7 +124,7 @@ namespace PcapngUtils.Pcap
             if (data.Length < caplen)
                 throw new EndOfStreamException("Unable to read beyond the end of the stream");
 
-            var packet = new PcapPacket((UInt64)secs, (UInt64)usecs, data, position);
+            var packet = new PcapPacket((UInt64)secs, (UInt64)nsecs, data, position);
             return packet;
         }
 

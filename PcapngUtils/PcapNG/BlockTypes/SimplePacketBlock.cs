@@ -20,6 +20,11 @@ namespace PcapngUtils.PcapNG.BlockTypes
         {
             get { return 0; }
         }
+
+        public ulong Nanoseconds
+        {
+            get { return 0; }
+        }
         #endregion
 
         #region Properties
