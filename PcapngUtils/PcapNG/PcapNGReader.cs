@@ -52,7 +52,7 @@ namespace PcapngUtils.PcapNG
         private readonly object _syncRoot = new object();
 
         public object SyncRoot { get { return _syncRoot; } }
-        public bool EndOfStream { get { return _binaryReader.BaseStream.Position < _binaryReader.BaseStream.Length; } }
+        public bool EndOfStream { get { return _binaryReader.BaseStream.Position >= _binaryReader.BaseStream.Length; } }
         #endregion
 
         #region ctor

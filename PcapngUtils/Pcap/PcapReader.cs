@@ -40,7 +40,7 @@ namespace PcapngUtils.Pcap
         public SectionHeader Header { get; private set; }
         private readonly object _syncRoot = new object();
         private long _basePosition;
-        public bool EndOfStream { get { return _binaryReader.BaseStream.Position < _binaryReader.BaseStream.Length; } }
+        public bool EndOfStream { get { return _binaryReader.BaseStream.Position >= _binaryReader.BaseStream.Length; } }
         public object SyncRoot { get { return _syncRoot; } }
         #endregion
 
@@ -118,7 +118,7 @@ namespace PcapngUtils.Pcap
             if (Header.NanoSecondResolution)
                 usecs = usecs / 1000;
             var caplen = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
-            //var len = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
+            var len = _binaryReader.ReadUInt32().ReverseByteOrder(Header.ReverseByteOrder);
 
             var data = _binaryReader.ReadBytes((int)caplen);
             if (data.Length < caplen)
