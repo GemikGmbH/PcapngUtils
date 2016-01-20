@@ -66,7 +66,7 @@ namespace PcapngUtils.PcapNG.BlockTypes
         public static NameResolutionBlock Parse(BaseBlock baseBlock, Action<Exception> actionOnException)
         {
             Contract.Requires<ArgumentNullException>(baseBlock != null, "BaseBlock cannot be null");
-            Contract.Requires<ArgumentNullException>(baseBlock.Body != null, "BaseBlock.Body cannot be null");
+            //Contract.Requires<ArgumentNullException>(baseBlock.Body != null, "BaseBlock.Body cannot be null");
             Contract.Requires<ArgumentException>(baseBlock.BlockType == BaseBlock.Types.NameResolution, "Invalid packet type");    
 
             long positionInStream = baseBlock.PositionInStream;

@@ -125,10 +125,10 @@ namespace PcapngUtils.PcapNG.BlockTypes
         #endregion
 
         #region ctor
-        public static EnchantedPacketBlock Parse(BaseBlock baseBlock, Action<Exception> ActionOnException)
+        public static EnchantedPacketBlock Parse(BaseBlock baseBlock, Action<Exception> actionOnException)
         {                           
             Contract.Requires<ArgumentNullException>(baseBlock != null, "BaseBlock cannot be null");
-            Contract.Requires<ArgumentNullException>(baseBlock.Body != null, "BaseBlock.Body cannot be null");
+            //Contract.Requires<ArgumentNullException>(baseBlock.Body != null, "BaseBlock.Body cannot be null");
             Contract.Requires<ArgumentException>(baseBlock.BlockType == BaseBlock.Types.EnhancedPacket, "Invalid packet type");    
 
             long positionInStream = baseBlock.PositionInStream;
@@ -150,7 +150,7 @@ namespace PcapngUtils.PcapNG.BlockTypes
                         int paddingLength = BaseBlock.AlignmentBoundary - remainderLength;
                         binaryReader.ReadBytes(paddingLength);
                     }
-                    EnchantedPacketOption option = EnchantedPacketOption.Parse(binaryReader, baseBlock.ReverseByteOrder, ActionOnException);
+                    EnchantedPacketOption option = EnchantedPacketOption.Parse(binaryReader, baseBlock.ReverseByteOrder, actionOnException);
                     EnchantedPacketBlock enchantedBlock = new EnchantedPacketBlock(interfaceID, timestampHelper, packetLength, data, option, positionInStream);
                     return enchantedBlock;
                 }   

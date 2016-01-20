@@ -38,7 +38,7 @@ namespace PcapngUtils.PcapNG.CommonTypes
         {
             get
             {
-                Contract.Requires<ArgumentNullException>(Value != null, "Value cannot be null");
+                //Contract.Requires<ArgumentNullException>(Value != null, "Value cannot be null");
                 try
                 {
                     string ret = UTF8Encoding.UTF8.GetString(this.Value);
@@ -67,7 +67,7 @@ namespace PcapngUtils.PcapNG.CommonTypes
         #region method
         public byte[] ConvertToByte()
         {
-            Contract.Requires<ArgumentNullException>(Value != null, "Value cannot be null");
+            //Contract.Requires<ArgumentNullException>(Value != null, "Value cannot be null");
             List<byte> ret = new List<byte>();
             ret.Add((byte)Algorithm);
             ret.AddRange(Value);

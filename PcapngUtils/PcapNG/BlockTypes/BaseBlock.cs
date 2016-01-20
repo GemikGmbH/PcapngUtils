@@ -112,7 +112,7 @@ namespace PcapngUtils.PcapNG.BlockTypes
         #region Method
         public byte[] ConvertToByte(bool reverseByteOrder)
         {
-            Contract.Requires<ArgumentNullException>(Body != null, "BaseBlock.Body cannot be null");
+            //Contract.Requires<ArgumentNullException>(Body != null, "BaseBlock.Body cannot be null");
 
             List<byte> ret = new List<byte>();
             int remainderLength = (AlignmentBoundary - Body.Length % AlignmentBoundary) % AlignmentBoundary ;

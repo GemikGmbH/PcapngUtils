@@ -88,6 +88,7 @@ namespace PcapngUtils
         {
             Contract.Requires<ArgumentNullException>(stream != null && stream.Length > 0,
                 "data stream cannot be null or empty");
+
             var defaultPosition = stream.Position;
 
             var mask = FindMask(stream);
@@ -107,6 +108,9 @@ namespace PcapngUtils
 
         private static uint FindMask(Stream stream)
         {
+            Contract.Requires<ArgumentNullException>(stream != null && stream.Length > 0,
+    "data stream cannot be null or empty");
+
             var binaryReader = new BinaryReader(stream);
 
             if (binaryReader.BaseStream.Length < 12)
@@ -124,6 +128,9 @@ namespace PcapngUtils
 
         private static uint FindMask(string path)
         {
+            Contract.Requires<ArgumentNullException>(!string.IsNullOrWhiteSpace(path), "path cannot be null or empty");
+            Contract.Requires<ArgumentException>(File.Exists(path), "file must exists");
+
             var mask = 0U;
             using (var stream = new FileStream(path, FileMode.Open))
             {
