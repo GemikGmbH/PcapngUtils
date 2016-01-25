@@ -39,7 +39,7 @@ namespace PcapngUtils.Pcap
             Contract.Requires<ArgumentNullException>(!string.IsNullOrWhiteSpace(path), "path cannot be null or empty");
             Contract.Requires<ArgumentException>(!File.Exists(path), "file exists");
             SectionHeader sh = SectionHeader.CreateEmptyHeader(nanoseconds, reverseByteOrder);
-            Initialize(new FileStream(path, FileMode.Create),sh);
+            Initialize(new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Write, 32768), sh);
         }
 
         public PcapWriter(Stream stream, bool nanoseconds = false, bool reverseByteOrder = false)

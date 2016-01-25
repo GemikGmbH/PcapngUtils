@@ -50,7 +50,7 @@ namespace PcapngUtils.Pcap
             Contract.Requires<ArgumentNullException>(!string.IsNullOrWhiteSpace(path), "path cannot be null or empty");
             Contract.Requires<ArgumentException>(File.Exists(path), "file must exists");
 
-            Initialize(new FileStream(path, FileMode.Open));
+            Initialize(new FileStream(path, FileMode.Open,FileAccess.Read,FileShare.Read,32768,FileOptions.SequentialScan));
         }
 
         public PcapReader(Stream s)

@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
 using System.Threading;
+using Microsoft.SqlServer.Server;
 using PcapngUtils.Common;
 using PcapngUtils.Pcap;
 using Xunit;
@@ -144,6 +145,7 @@ namespace PcapngUtilsTests
         [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Map0.pcap")]
         [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Map1.pcap")]
         [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Dia0.pcap")]
+        [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\10million.pcap")]
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void PcapReader_Perf(string path)
         {
@@ -165,6 +167,53 @@ namespace PcapngUtilsTests
             _helper.WriteLine("'{0}' took '{1}' ms to rewrite.", path, watch.ElapsedMilliseconds);
 
             File.Delete(testPath);
+        }
+
+        [Theory]
+        [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Gtp0.pcap")]
+        [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Gtp1.pcap")]
+        [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Map0.pcap")]
+        [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Map1.pcap")]
+        [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Dia0.pcap")]
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        public void PcapReader_Mem_Perf(string path)
+        {
+            var msSrc = new MemoryStream();
+            var msDst = new MemoryStream();
+
+            using(var fs=new FileStream(path,FileMode.Open))
+                Copy(fs,msSrc);
+
+            msSrc.Position = 0;
+
+            var watch = new Stopwatch();
+
+            watch.Start();
+            using (var reader = new PcapReader(msSrc))
+            using (var writer = new PcapWriter(msDst, reader.Header))
+            {
+                while (!reader.EndOfStream)
+                {
+                    var packet = reader.ReadPcap();
+                    writer.WritePacket(packet);
+                }
+            }
+            watch.Stop();
+            _helper.WriteLine("'{0}' took '{1}' ms to rewrite.", path, watch.ElapsedMilliseconds);
+        }
+
+        private static void Copy(Stream src,Stream dst)
+        {
+            var buffer = new byte[32768];
+
+            while (true)
+            {
+                var readCount = src.Read(buffer, 0, buffer.Length);
+                if (readCount == 0)
+                    return;
+
+                dst.Write(buffer,0,readCount);
+            }
         }
     }
 }
