@@ -1,5 +1,4 @@
 ﻿using PcapngUtils.PcapNG.BlockTypes;
-using PcapngUtils.PcapNG.OptionTypes;
 
 namespace PcapngUtils.Common
 {
