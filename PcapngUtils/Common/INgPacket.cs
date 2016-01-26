@@ -6,7 +6,6 @@ namespace PcapngUtils.Common
     {
         BaseBlock.Types BlockType { get; }
         int? AssociatedInterfaceId { get; }
-        long PositionInStream { get; }
         int PacketLength { get; }
 
         void Comment(string comment);

@@ -59,6 +59,7 @@
   <ItemGroup>
     <Compile Include="AbstractBlockFactoryTest.cs" />
     <Compile Include="BaseBlockTest.cs" />
+    <Compile Include="ConversionTests.cs" />
     <Compile Include="EnchantedPacketBlockTest.cs" />
     <Compile Include="EnchantedPacketOptionTest.cs" />
     <Compile Include="HashBlockTest.cs" />

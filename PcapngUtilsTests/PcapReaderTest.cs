@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
 using System.Threading;
-using Microsoft.SqlServer.Server;
 using PcapngUtils.Common;
 using PcapngUtils.Pcap;
 using Xunit;
@@ -97,46 +96,6 @@ namespace PcapngUtilsTests
 
 
             });
-        }
-
-        [Theory]
-        [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Gtp0.pcap")]
-        [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Gtp1.pcap")]
-        [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Map0.pcap")]
-        [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Map1.pcap")]
-        [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Dia0.pcap")]
-        public void PcapReader_Validate(string path)
-        {
-            var testPath = path + ".tv";
-            using (var reader = new PcapReader(path))
-            using (var writer = new PcapWriter(testPath, reader.Header))
-            {
-                while (!reader.EndOfStream)
-                {
-                    var packet = reader.ReadPcap();
-                    writer.WritePacket(packet);
-                }
-            }
-
-            var orig = Md5(path);
-            var test = Md5(testPath);
-
-            var res = test.SequenceEqual(orig);
-            if (res)
-            {
-                File.Delete(testPath);
-                Assert.True(res);
-            }
-            else
-                throw new Exception(
-                    "check files manually using hex comparer or something, files may not be binary same but equal.");
-        }
-
-        private static byte[] Md5(string path)
-        {
-            using (var md5 = MD5.Create())
-            using (var fs = new FileStream(path, FileMode.Open))
-                return md5.ComputeHash(fs);
         }
 
         [Theory]

@@ -193,6 +193,7 @@
     <Compile Include="Common\Disposable.cs" />
     <Compile Include="Common\INgPacket.cs" />
     <Compile Include="Extensions\ArrayExtensions.cs" />
+    <Compile Include="Extensions\HeaderExtensions.cs" />
     <Compile Include="Extensions\ReverseByteOrderExtension.cs" />
     <Compile Include="Common\IPacket.cs" />
     <Compile Include="Common\IWriter.cs" />
