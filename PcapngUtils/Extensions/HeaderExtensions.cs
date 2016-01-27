@@ -57,5 +57,18 @@ namespace PcapngUtils.Extensions
                 new HeaderWithInterfacesDescriptions(header, new List<InterfaceDescriptionBlock> {interfaceDesc})
             };
         }
+
+        public static List<HeaderWithInterfacesDescriptions> MergeNgHeaders(this List<HeaderWithInterfacesDescriptions> headers)
+        {
+            var mainHeader = headers.Take(1).First();
+
+            var headerSection = mainHeader.Header;
+            var descs = headers.SelectMany(h => h.InterfaceDescriptions).ToList();
+
+            return new List<HeaderWithInterfacesDescriptions>
+            {
+                new HeaderWithInterfacesDescriptions(headerSection, descs)
+            };
+        } 
     }
 }

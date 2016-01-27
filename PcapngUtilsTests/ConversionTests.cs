@@ -1,17 +1,81 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using PcapngUtils;
+using PcapngUtils.Common;
 using PcapngUtils.Extensions;
 using PcapngUtils.Pcap;
 using PcapngUtils.PcapNG;
+using PcapngUtils.PcapNG.BlockTypes;
 using Xunit;
 
 namespace PcapngUtilsTests
 {
     public class ConversionTests
     {
+        public static IEnumerable<string[][]> MultipleInterfaceData 
+        {
+            get
+            {
+                return new List<string[][]>
+                {
+                    new[]
+                    {
+                        new[]
+                        {
+                            @"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\small0.pcap",
+                            @"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\small1.pcap",
+                            @"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\small2.pcap",
+                            @"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\small3.pcap"
+                        }
+                    }
+                };
+            }
+        }
+        [Theory]
+        [MemberData("MultipleInterfaceData")]
+        public void Pcap_To_PcapNg_MultipleInterfaces(params string[] paths)
+        {
+            var headers = new List<HeaderWithInterfacesDescriptions>();
+            var packets = new List<IPacket>();
+
+            for (var i=0;i<paths.Length;i++)
+            {
+                using (var reader = ReaderFactory.GetReader(paths[i]))
+                {
+                    var header = reader.GetPcapNgHeader();
+                    //header[0].Header.AssociatedInterfaceId = i;
+                    //header[0].InterfaceDescriptions[0].AssociatedInterfaceId = i;
+
+                    headers.Add(header[0]);
+                    while (!reader.EndOfStream)
+                    {
+                        var origPacket = reader.Read();
+                        var newPacket = EnchantedPacketBlock.CreateEnchantedPacketFromIPacket(origPacket,e=>
+                        {
+                            throw e;
+                        });
+
+                        newPacket.InterfaceID = i;
+                        packets.Add(newPacket);
+                    }
+                }
+            }
+
+            var finalHeader = headers.MergeNgHeaders();
+
+            var testPath = paths.First() + ".tv";
+            using (var writer = new PcapNgWriter(testPath, finalHeader))
+            {
+                foreach(var p in packets)
+                    writer.WritePacket(p);
+            }
+
+            throw new Exception("unfortunately for now we should check the file manually.");
+        }
+
         [Theory]
         //[InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Gtp0.pcap")]
         [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Gtp1.pcap")]
