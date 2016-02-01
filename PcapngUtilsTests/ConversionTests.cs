@@ -65,8 +65,29 @@ namespace PcapngUtilsTests
             var dst = Path.GetDirectoryName(paths.First());
             dst = Path.Combine(dst, "mergePcap.pcapng");
 
+            var totalCount=0;
+
             using (var merger = new PcapMerger(dst, paths))
+            {
                 merger.Merge();
+                totalCount = merger.Count();
+            }
+
+            var verifyCount = 0;
+
+            using (var reader = ReaderFactory.GetReader(dst))
+            {
+                while (!reader.EndOfStream)
+                {
+                    reader.Read();
+                    verifyCount++;
+                }
+            }
+
+            if (verifyCount == totalCount)
+                File.Delete(dst);
+            
+            Assert.Equal(totalCount,verifyCount);
         }
 
         [Theory]
@@ -145,7 +166,8 @@ namespace PcapngUtilsTests
                     "check files manually using hex comparer or something, files may not be binary same but equal.");
         }
 
-        [Theory]
+        
+        //[Theory]
         [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\http.littleendian.ntar")]
         [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\http.bigendian.ntar")]
         public void PcapNg_To_PcapNg(string path)

@@ -21,8 +21,8 @@ namespace PcapngUtils.Utilities
             private IPacket _stash;
 
             public HeaderWithInterfacesDescriptions Header { get; private set; }
-            public int Index { get; private set; }
-
+            private int Index { get; set; }
+            public int Count { get; set; }
 
             public Selector(Stream stream, int index)
             {
@@ -46,6 +46,7 @@ namespace PcapngUtils.Utilities
                 if (_reader.EndOfStream)
                     return null;
 
+                Count++;
                 var packet = _reader.Read();
                 var ngPacket = EnchantedPacketBlock.CreateEnchantedPacketFromIPacket(packet,e=> { throw e; });
                 ngPacket.InterfaceID = Index;
@@ -122,6 +123,11 @@ namespace PcapngUtils.Utilities
 
                 writer.WritePacket(packet);
             }
+        }
+
+        public int Count()
+        {
+            return _selectors.Sum(s => s.Count);
         }
 
         public void Dispose()
