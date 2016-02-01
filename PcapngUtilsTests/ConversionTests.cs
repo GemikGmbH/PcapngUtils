@@ -9,6 +9,7 @@ using PcapngUtils.Extensions;
 using PcapngUtils.Pcap;
 using PcapngUtils.PcapNG;
 using PcapngUtils.PcapNG.BlockTypes;
+using PcapngUtils.Utilities;
 using Xunit;
 
 namespace PcapngUtilsTests
@@ -34,6 +35,40 @@ namespace PcapngUtilsTests
                 };
             }
         }
+
+        public static IEnumerable<string[][]> PcapMergeData
+        {
+            get
+            {
+                return new List<string[][]>
+                {
+                    new[]
+                    {
+                        new[]
+                        {
+                            @"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Gtp0.pcap",
+                            @"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Gtp1.pcap",
+                            @"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Map0.pcap",
+                            @"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Map1.pcap",
+                            @"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Map2.pcap",
+                            @"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\Dia0.pcap"
+                        }
+                    }
+                };
+            }
+        }
+
+        [Theory]
+        [MemberData("PcapMergeData")]
+        public void Pcap_To_PcapNg_Merge(params string[] paths)
+        {
+            var dst = Path.GetDirectoryName(paths.First());
+            dst = Path.Combine(dst, "mergePcap.pcapng");
+
+            using (var merger = new PcapMerger(dst, paths))
+                merger.Merge();
+        }
+
         [Theory]
         [MemberData("MultipleInterfaceData")]
         public void Pcap_To_PcapNg_MultipleInterfaces(params string[] paths)
