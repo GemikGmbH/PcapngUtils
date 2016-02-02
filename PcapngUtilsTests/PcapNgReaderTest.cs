@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading;
+using PcapngUtils;
 using PcapngUtils.Common;
 using PcapngUtils.PcapNG;
 using Xunit;
@@ -61,6 +62,19 @@ namespace PcapngUtilsTests
                 }
 
             });
+        }
+
+
+        [Theory]
+        [InlineData(@"C:\Users\Hesenpai\Desktop\Gemik2\TestFiles\ngNotGood.pcap")]
+        public void ReadNgFile(string path)
+        {
+            using (var reader = ReaderFactory.GetReader(path))
+            {
+                while (!reader.EndOfStream)
+                    reader.Read();
+
+            }
         }
     }
 }

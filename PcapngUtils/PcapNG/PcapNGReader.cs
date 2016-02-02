@@ -6,12 +6,17 @@ using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using PcapngUtils.Common;
+using PcapngUtils.Pcap;
 using PcapngUtils.PcapNG.BlockTypes;
 
 namespace PcapngUtils.PcapNG
 { 
     public sealed class PcapNgReader : Disposable, IReader
     {
+        public static readonly INgPacket Empty =
+            EnchantedPacketBlock.CreateEnchantedPacketFromIPacket(new PcapPacket(0, 0, new byte[0], 0),
+                e => { throw e; });
+
         #region event & delegate  
         public event CommonDelegates.ExceptionEventDelegate OnExceptionEvent;
 
@@ -237,26 +242,39 @@ namespace PcapngUtils.PcapNG
 
         public INgPacket ReadPcap()
         {
-            var block = AbstractBlockFactory.ReadNextBlock(_binaryReader, _reverseByteOrder, OnException);
+            AbstractBlock block = null;
 
-            switch (block.BlockType)
+            while (!EndOfStream)
             {
-                case BaseBlock.Types.EnhancedPacket:
-                {
-                    var enchantedBlock = block as EnchantedPacketBlock;
-                    return enchantedBlock;
-                }
-                case BaseBlock.Types.Packet:
-                {
-                    var packetBlock = block as PacketBlock;
-                    return packetBlock;
-                }
-                case BaseBlock.Types.SimplePacket:
-                {
-                    var simpleBlock = block as SimplePacketBlock;
-                    return simpleBlock;
-                }
+                block = AbstractBlockFactory.ReadNextBlock(_binaryReader, _reverseByteOrder, OnException);
+                if (block.BlockType == BaseBlock.Types.EnhancedPacket || block.BlockType == BaseBlock.Types.Packet ||
+                    block.BlockType == BaseBlock.Types.SimplePacket)
+                    break;
+
+                //NOTE: I'm not pretty sure if null is better or and empty packet
+                if (EndOfStream) //fake packet as final one
+                    return Empty;
             }
+
+            if (block != null)
+                switch (block.BlockType)
+                {
+                    case BaseBlock.Types.EnhancedPacket:
+                    {
+                        var enchantedBlock = block as EnchantedPacketBlock;
+                        return enchantedBlock;
+                    }
+                    case BaseBlock.Types.Packet:
+                    {
+                        var packetBlock = block as PacketBlock;
+                        return packetBlock;
+                    }
+                    case BaseBlock.Types.SimplePacket:
+                    {
+                        var simpleBlock = block as SimplePacketBlock;
+                        return simpleBlock;
+                    }
+                }
             throw new Exception("failed to read next packet.");
         }
 
