@@ -39,6 +39,8 @@ namespace PcapngUtils.PcapNG
         private readonly object _syncRoot = new object();
 
         public object SyncRoot { get { return _syncRoot; } }
+
+        public long Position { get { return _stream.Position; } }
         #endregion
 
         #region ctor

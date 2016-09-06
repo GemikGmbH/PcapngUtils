@@ -31,6 +31,8 @@ namespace PcapngUtils.Pcap
 
         public object SyncRoot { get { return _syncRoot; } }
 
+        public long Position { get { return _stream.Position; } }
+
         #endregion
 
         #region ctor
@@ -114,9 +116,26 @@ namespace PcapngUtils.Pcap
             {
                 OnException(exc);
             }
-        }         
+        }
 
+        public void WriteUnsafe(uint secs,uint lsecs,byte[] data)
+        {
+            try
+            {
+                var caplen = (uint)data.Length;
+                var len = caplen;
 
+                _binaryWriter.Write(secs);
+                _binaryWriter.Write(lsecs);
+                _binaryWriter.Write(caplen);
+                _binaryWriter.Write(len);
+                _binaryWriter.Write(data);
+            }
+            catch (Exception exc)
+            {
+                OnException(exc);
+            }
+        } 
         #region IDisposable Members
         /// <summary>
         /// Close stream, dispose members
